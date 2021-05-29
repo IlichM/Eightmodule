@@ -6,15 +6,23 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
+class ConvertException extends Exception {
+    ConvertException(String message){
+        super(message);
+    }
+}
+
 public class Main {
     public static void main(String[] args) {
-        if (copyFileUsingStream("src/utf8.txt", "UTF-9", "src/win1251.txt", "Windows-1251")) {
+        try {
+            copyFileUsingStream("src/utf8.txt", "UTF-8", "src/win1251.txt", "Windows-1251");
             System.out.println("Перекодировка прошла успешно!");
+        } catch (ConvertException e) {
+            System.out.println(e.getMessage());
         }
-
     }
 
-    public static boolean copyFileUsingStream(String source, String sourceEnc, String dest, String destEnc) {
+    public static void copyFileUsingStream(String source, String sourceEnc, String dest, String destEnc) throws ConvertException{
 
         //создание входящей кодировки
         //создание выходящей кодировки
@@ -26,15 +34,11 @@ public class Main {
                     fos.write(buffer, 0, length);
                 }
         } catch (FileNotFoundException e) {
-            System.out.println("Проблемма с файлами " + e.getMessage());
-            return false;
+            throw new ConvertException("Проблемма с файлами " + e.getMessage());
         } catch (UnsupportedCharsetException e) {
-            System.out.println("Проблемма с кодировкой файлов " + e.getMessage());
-            return false;
+            throw new ConvertException("Проблемма с кодировкой файлов " + e.getMessage());
         } catch(IOException e) {
-            System.out.println("Проблемма при копировании " + e.getMessage());
-            return false;
+            throw new ConvertException("Проблемма при копировании " + e.getMessage());
         }
-        return true;
     }
 }
